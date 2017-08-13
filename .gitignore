@@ -1,9 +1,0 @@
-/incremental_db
-/output_files
-/simulation/modelsim
-/.qsys_edit
-*.bak
-*.qpf
-*.qsf
-*.qws
-
