@@ -1,4 +1,0 @@
-set tool_name "ModelSim-Altera (Verilog)"
-set corner_file_list {
-    {{"Slow -7 1.2V 85 Model"} {Processor.vo Processor_v.sdo}}
-}
