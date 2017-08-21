@@ -90,7 +90,9 @@ module Datapath (reset, clock, State, opcode, flagRF, flagALU, flagPC, flagDM, f
 				//Faz nada
 			end
 			12: begin //HLT
-				RS = instruction[25:21];
+				RS = instruction [25:21];
+				//Parar processamento
+				//Mantém o valor do PC, porém, desativa FLAGs.
 			end
 			13: begin //MOVE
 				RS = instruction [25:21];

@@ -5,5 +5,5 @@ module Divisor(CLOCK, NEW_CLOCK);
 	always@(posedge CLOCK) begin
 		contador <= contador + 1;
 	end
-	assign NEW_CLOCK = contador[15]; //22
+	assign NEW_CLOCK = contador[10]; //22
 endmodule

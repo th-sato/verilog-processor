@@ -55,8 +55,6 @@ module ArithmeticLogicUnit (clock, State, OPCODE, flagALU, FUNCT, RDvalue, RSval
 					if (RSvalue != RTvalue) RDvalue = 32'd1;
 					else RDvalue = 32'd0;
 				end
-				17: RDvalue = RSvalue*RTvalue;
-				18: RDvalue = RSvalue/RTvalue;
 //				13: RDvalue = RSvalue * RTvalue; //MULT: verificar se vai estourar os bits
 //				14: RDvalue = RSvalue * immediate; //MULTI
 //				15: begin //DIV
