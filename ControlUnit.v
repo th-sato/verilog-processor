@@ -1,202 +1,218 @@
-module ControlUnit (reset, clock, interruption, opcode, flagBRANCH, flagALU, flagRF, flagPC, flagDM, flagMUXRD, flagJAL, flagJR, flagLI, flagOUT, flagRR, State, LED, enter);
-	parameter bits = 32, bitsOP = 6, flag = 2, st = 3;
-	integer initialize = 0;
+module ControlUnit (
+	input reset,
+	input clock,
+	input interruption,
+	input flagJB,
+	input [5:0] opcode,
+	output reg flagDM, //Escrita na memoria de dados
+	output reg flagJR, //Jump Register
+	output reg flagLSR, //Load Register, Store Register
+	output reg flagRF, //Escrita no banco de registradores
+	output reg flagOUT, //Apresentar valor
+	output reg [1:0] flagPC, //Incremento no endereço da memoria de instruçoes
+	output reg [1:0] flagBQ, //Branches
+	output reg [2:0] flagMuxRF,
+	output reg LED //LED indicando leitura de valor
+);
+	localparam [5:0] ALU = 6'd0, LW = 6'd1, LI = 6'd2, LR = 6'd3, SW = 6'd4, SR = 6'd5,
+							BEQ = 6'd6, BNQ = 6'd7, JMP = 6'd8, JR = 6'd9, NOP = 6'd10,
+							HLT = 6'd11, IN = 6'd12, OUT = 6'd13;
 	
-	input reset, clock, interruption, flagBRANCH, enter;
-	input [bitsOP-1:0] opcode;
-	
-	output reg [st-1:0] State;
-	output reg [flag-1:0] flagALU, flagRF, flagPC, flagDM, flagMUXRD;
-	output reg flagJR, flagJAL, flagLI, flagOUT, flagRR, LED;
-	
-	reg Read;
-	
-	always@ (posedge clock) begin
-		if(initialize == 0) begin
-			State = 0;
-			initialize = 1;
-			Read = 1;
-			LED = 0;
-		end
-		if (reset) begin
-			State = 0;
-			Read = 1;
+	always@ (*) begin
+		if(reset == 1) begin
+			flagDM = 0;
+			flagJR = 0;
+			flagLSR = 0;
+			flagRF = 0;
+			flagOUT = 0;
+			flagPC = 2'd0;
+			flagBQ = 2'd0;
+			flagMuxRF = 3'd0;
 			LED = 0;
 		end
 		else if (interruption == 0) begin
-			if (Read == 0) State = 2;
-			else if (State < 5) State = State + 1;
-			else State = 1;
-			
-			if (State == 1 || State == 0) begin //Busca da instruçao
-				flagALU <= 2'd0;
-				flagRF <= 2'd0;
-				flagPC <= 2'd0;
-				flagDM <= 2'd0;
-				flagMUXRD <= 2'd0;
-				flagJR <= 0;
-				flagJAL <= 0;
-				flagLI <= 0;
-				flagOUT <= 0;
-				flagRR <= 0;
-			end
-			else case (opcode)
-				0: begin //Operações lógicas e aritméticas
-					case (State)
-						3: begin
-							flagALU = 2'd1; //ALU
-							flagMUXRD = 2'd1; //Define qual RDvalue usar
-						end	
-						4: flagRF = 2'd1; //Guarda o resultado no banco de registradores
-						5: flagPC = 2'd1; //Incrementa o valor do PC
-					endcase
+			case (opcode)
+				ALU: begin //Operações lógicas e aritméticas
+					flagDM = 0;
+					flagJR = 0;
+					flagLSR = 0;
+					flagRF = 1;
+					flagOUT = 0;
+					flagPC = 2'd1;
+					flagBQ = 2'd0;
+					flagMuxRF = 3'd1;
+					LED = 0;
 				end
-				1: begin //Load Word
-					case (State)
-						3: flagMUXRD = 2'd2;
-						4: flagRF = 2'd1; //Escreve no banco de registradores
-						5: flagPC = 2'd1; //Incrementa o valor do PC
-					endcase
+				LW: begin //Load Word
+					flagDM = 0;
+					flagJR = 0;
+					flagLSR = 0;
+					flagRF = 1;
+					flagOUT = 0;
+					flagPC = 2'd1;
+					flagBQ = 2'd0;
+					flagMuxRF = 3'd2;
+					LED = 0;
 				end
-				2: begin //LOADI
-					case (State)
-						2: begin
-							flagLI = 1;
-							flagRF = 2'd1;
-						end
-						5: flagPC = 2'd1; //Incrementa o valor do PC
-					endcase
-				
+				LI: begin //LOADI
+					flagDM = 0;
+					flagJR = 0;
+					flagLSR = 0;
+					flagRF = 1;
+					flagOUT = 0;
+					flagPC = 2'd1;
+					flagBQ = 2'd0;
+					flagMuxRF = 3'd4;
+					LED = 0;
 				end
-				3: begin //Store Word
-					case (State)
-						2: flagRF = 2'd3; //Leitura dos registradores
-						3: flagDM = 2'd1; //Guarda o valor na memoria
-						5: flagPC = 2'd1; //Incrementa o valor do PC
-					endcase
+				SW: begin //Store Word
+					flagDM = 1;
+					flagJR = 0;
+					flagLSR = 0;
+					flagRF = 0;
+					flagOUT = 0;
+					flagPC = 2'd1;
+					flagBQ = 2'd0;
+					flagMuxRF = 3'd0;
+					LED = 0;
 				end
-				4: begin //Shift Right Logical
-					case (State)
-						3: flagALU = 2'd2; //ALU
-						4: begin
-							flagMUXRD = 2'd1; //Pega o valor da ALU
-							flagRF = 2'd1; //Escreve no registrador
-						end
-						5: flagPC = 2'd1; //Incrementa o valor do PC
-					endcase
+				BEQ: begin //Branch Equal
+					flagDM = 0;
+					flagJR = 0;
+					flagLSR = 0;
+					flagRF = 0;
+					flagOUT = 0;
+					flagBQ = 2'd1;
+					flagMuxRF = 3'd0;
+					if(flagJB == 1)
+						flagPC = 2'd2;
+					else flagPC = 2'd1;
+					LED = 0;
 				end
-				5: begin //Shift Left Logical
-					case (State)
-						3: flagALU = 2'd2;//ALU
-						4: begin
-							flagMUXRD = 2'd1; //Pega o valor da ALU
-							flagRF = 2'd1; //Escreve no registrador
-						end
-						5: flagPC = 2'd1; //Incrementa o valor do PC
-					endcase
+				BNQ: begin //Branch Not Equal
+					flagDM = 0;
+					flagJR = 0;
+					flagLSR = 0;
+					flagRF = 0;
+					flagOUT = 0;
+					flagBQ = 2'd2;
+					flagMuxRF = 3'd0;
+					if(flagJB == 1)
+						flagPC = 2'd2;
+					else flagPC = 2'd1;
+					LED = 0;
 				end
-				6: begin //Branch Equal
-					case (State)
-						3: flagALU = 2'd2; //ALU
-						5: begin
-							if (flagBRANCH == 1) flagPC = 2'd2;
-							else flagPC = 2'd1;
-						end
-					endcase
+				JMP: begin //Jump
+					flagDM = 0;
+					flagJR = 0;
+					flagLSR = 0;
+					flagRF = 0;
+					flagOUT = 0;
+					flagBQ = 2'd0;
+					flagMuxRF = 3'd0;
+					flagPC = 2'd2;
+					LED = 0;
 				end
-				7: begin //Branch Not Equal
-					case (State)
-						3: flagALU = 2'd2; //ALU
-						5: begin
-							if (flagBRANCH == 1) flagPC = 2'd2;
-							else flagPC = 2'd1;
-						end
-					endcase
+				JR: begin //Jump register
+					flagDM = 0;
+					flagJR = 1;
+					flagLSR = 0;
+					flagRF = 0;
+					flagOUT = 0;
+					flagBQ = 2'd0;
+					flagMuxRF = 3'd0;
+					flagPC = 2'd2;
+					LED = 0;
 				end
-				8: begin //Jump
-					case (State)
-						5: flagPC = 2'd2;
-					endcase
+				NOP: begin //No operation
+					flagDM = 0;
+					flagJR = 0;
+					flagLSR = 0;
+					flagRF = 0;
+					flagOUT = 0;
+					flagBQ = 2'd0;
+					flagMuxRF = 3'd0;
+					flagPC = 2'd1;
+					LED = 0;
 				end
-				9: begin //Jump register
-					case (State)
-						3: flagJR = 1;
-						5: flagPC = 2'd2;
-					endcase
-				end
-				10: begin //Jump and Link
-					case (State)
-						2: flagJAL = 1;
-						3: flagRF = 2'd1;
-						5: flagPC = 2'd2;
-					endcase
-				end
-				11: begin //No operation
-					case (State)
-						5: flagPC = 2'd1;
-					endcase
-				end
-				12: begin //HALT
+				HLT: begin //HALT
+					flagDM = 0;
+					flagJR = 0;
+					flagLSR = 0;
+					flagRF = 0;
 					flagOUT = 1;
+					flagBQ = 2'd0;
+					flagMuxRF = 3'd0;
+					flagPC = 2'd0;
+					LED = 0;
 				end
-				13: begin //Move
-					case (State)
-						2: flagRF = 2'd2;
-						3: flagRF = 2'd0;
-						5: flagPC = 2'd1;
-					endcase
+				IN: begin //IN
+					flagDM = 0;
+					flagJR = 0;
+					flagLSR = 0;
+					flagRF = 1;
+					flagOUT = 1;
+					flagBQ = 2'd0;
+					flagMuxRF = 3'd3;
+					flagPC = 2'd1;
+					LED = 1;
 				end
-				14: begin //IN
-					case (State)
-						2: begin
-							if (enter == 0) begin //Esperando ser lido
-								Read = 0;
-								LED = 1; //Ligado
-							end
-							else begin //Foi lido
-								Read = 1;
-								LED = 0; //Apagado
-								flagMUXRD = 2'd3;
-							end
-						end
-						4: flagRF = 2'd1;
-						5: flagPC = 2'd1;
-					endcase
+				OUT: begin //OUT
+					flagDM = 0;
+					flagJR = 0;
+					flagLSR = 0;
+					flagRF = 0;
+					flagOUT = 1;
+					flagBQ = 2'd0;
+					flagMuxRF = 3'd0;
+					flagPC = 2'd1;
+					LED = 0;
 				end
-				15: begin //OUT
-					case (State)
-						2: flagOUT = 1;
-						5: flagPC = 2'd1;
-					endcase
+				LR: begin //LOADR
+					flagDM = 0;
+					flagJR = 0;
+					flagLSR = 1;
+					flagRF = 1;
+					flagOUT = 0;
+					flagBQ = 2'd0;
+					flagMuxRF = 3'd2;
+					flagPC = 2'd1;
+					LED = 0;
 				end
-				16: begin //LOADR
-					case(State)
-						2: flagRR = 1;
-						3: flagMUXRD = 2'd2;
-						4: flagRF = 2'd1;
-						5: flagPC = 2'd1;
-					endcase
+				SR: begin //STORER
+					flagDM = 1;
+					flagJR = 0;
+					flagLSR = 1;
+					flagRF = 0;
+					flagOUT = 0;
+					flagBQ = 2'd0;
+					flagMuxRF = 3'd0;
+					flagPC = 2'd1;
+					LED = 0;
 				end
-				17: begin //STORER
-					case(State)
-						2: flagRR = 1;
-						3: flagDM = 2'd1;
-						5: flagPC = 2'd1;
-					endcase
+				default: begin
+					flagDM = 0;
+					flagJR = 0;
+					flagLSR = 0;
+					flagRF = 0;
+					flagOUT = 0;
+					flagPC = 2'd0;
+					flagBQ = 2'd0;
+					flagMuxRF = 3'd0;
+					LED = 0;
 				end
 			endcase
 		end
 		else begin
-			flagALU <= 2'd0;
-			flagRF <= 2'd0;
-			flagPC <= 2'd0;
-			flagDM <= 2'd0;
-			flagMUXRD <= 2'd0;
-			flagJR <= 0;
-			flagJAL <= 0;
-			flagLI <= 0;
-			flagOUT <= 0;
-			flagRR <= 0;
+			flagDM = 0;
+			flagJR = 0;
+			flagLSR = 0;
+			flagRF = 0;
+			flagOUT = 0;
+			flagPC = 2'd0;
+			flagBQ = 2'd0;
+			flagMuxRF = 3'd0;
+			LED = 0;
 		end
 	end
 endmodule

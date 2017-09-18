@@ -1,25 +1,24 @@
-module ProgramCounter (clock, reset, flagPC, newAddress, address);
-	parameter flag = 2, addr = 20; //2^10*2^10 = 1024 * 1024
+module ProgramCounter (
+	input clock,
+	input reset,
+	input [1:0] flagPC,
+	input [19:0] newAddress,
+	output reg [19:0] address
+);
 	//Como cada posição da matriz tem 32 bits, temos um total de 4Mb.
-	integer initialize = 0;
-	input reset, clock;
-	input [flag-1:0] flagPC;
-	input [addr-1:0] newAddress;
-	output reg [addr-1:0] address;
+	integer initialize = 1;
 	
 	always@ (posedge clock) begin
-		if (initialize == 0) begin
+		if (initialize == 1) begin
 			address = 20'd0;
-			initialize = 1;
+			initialize = 0;
 		end
 		if (reset == 1) //Começa a executar o programa da primeira linha.
 			address = 20'd0;
-		else case (flagPC)
-			1: address = address + 1;
-			2: address = newAddress; //Jump, Branch, Jump register
-			default: begin
-			end			
-		endcase
+		else if (flagPC == 2'd1)
+			address = address + 20'd1;
+		else if (flagPC == 2'd2)
+			address = newAddress; //Jump, Branch, Jump register
 	end
 	
 endmodule

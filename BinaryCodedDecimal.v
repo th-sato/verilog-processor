@@ -1,23 +1,25 @@
-module BinaryCodedDecimal (binary, hundred, ten, one);
-	parameter bits = 10, number = 4;
+module BinaryCodedDecimal (
+	input [9:0] binary,
+	output reg [3:0] hundred,
+	output reg [3:0] ten,
+	output reg [3:0] one
+);
 	integer i;
-	input [bits-1:0] binary;
-	output reg [number-1:0] hundred, ten, one;
-	reg [bits-1:0] conversion;
+	reg [9:0] conversion;
 	
 	always@ (binary) begin
-		if(binary[bits-1] == 1) begin
-			conversion = binary - 1;
+		if(binary[9] == 1) begin
+			conversion = binary - 10'd1;
 			conversion = ~conversion;
 		end
 		else conversion = binary;
 		hundred = 4'd0;
 		ten = 4'd0;
 		one = 4'd0;
-		for (i=bits-1; i>=0; i=i-1) begin
-			if(hundred >= 5) hundred = hundred + 3;
-			if(ten >= 5) ten = ten + 3;
-			if(one >= 5) one = one + 3;
+		for (i=9; i>=0; i=i-1) begin
+			if(hundred >= 5) hundred = hundred + 4'd3;
+			if(ten >= 5) ten = ten + 4'd3;
+			if(one >= 5) one = one + 4'd3;
 				
 			hundred = hundred << 1;
 			hundred[0] = ten[3];

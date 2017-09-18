@@ -1,9 +1,16 @@
-module Divisor(CLOCK, NEW_CLOCK);
-	input CLOCK;
-	output NEW_CLOCK;
+module Divisor(
+	input CLOCK,
+	input enter,
+	input [5:0] opcode,
+	output reg NEW_CLOCK
+);
 	reg[24:0] contador;
+	
 	always@(posedge CLOCK) begin
-		contador <= contador + 1;
+		if(opcode == 6'd12) NEW_CLOCK = enter;
+		else begin 
+			contador = contador + 25'd1;
+			NEW_CLOCK = contador[15]; //10
+		end
 	end
-	assign NEW_CLOCK = contador[10]; //22
 endmodule

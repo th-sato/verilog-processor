@@ -1,6 +1,7 @@
-module Display7 (Q, OUT);
-	input [3:0] Q;
-	output reg [6:0] OUT;
+module Display7 (
+	input [3:0] Q,
+	output reg [6:0] OUT
+);
 	always@(Q) begin
 		case(Q)
 			0: OUT = 7'b1000000;
