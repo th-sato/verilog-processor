@@ -1,29 +1,29 @@
 module Datapath (
 	input reset,
 	input clock,
-	input flagDM, //Escrita na memoria de dados
 	input flagJR, //Jump Register
 	input flagLSR, //Load Register, Store Register
 	input flagRF, //Escrita no banco de registradores
 	input [1:0] flagPC, //Incremento no endereço da memoria de instruçoes
 	input [1:0] flagBQ, //Branches
 	input [2:0] flagMuxRF, //Valor a ser escrito no banco de registradores
+	input [31:0] dataReadDM, //Leitura da memoria de dados
+	input [31:0] instruction, //Instruçao
 	input [31:0] IN, //Entrada de dados
 	output reg flagJB, //Flag para BRANCH
 	output [5:0] opcode, //OPCODE
+	output [19:0] addressMI, //Endereço da instrucao
+	output reg [19:0] addressDM, //Endereço para escrita do dado
+	output [31:0] RDvalue, //Valores lidos
 	output reg [31:0] OUT //Valor de saida (Display)
 );
 	wire [4:0] RD, RS, RT; //Endereços
 	wire [5:0] funct; //Campo function
 	wire [9:0] imed_op; //Imediato para operaçoes aritmeticas
 	wire [20:0] imed_load; //Load imediato
-	wire [19:0] addressMI; //Endereço da instrucao
-	wire [31:0] RDvalue, RSvalue, RTvalue; //Valores lidos
+	wire [31:0] RSvalue, RTvalue; //Valores lidos
 	wire [31:0] resultALU; //Resultado da operacao
-	wire [31:0] instruction; //Instruçao
-	wire [31:0] dataReadDM;
 	
-	reg [19:0] addressDM; //Endereço para escrita do dado
 	reg [19:0] newAddress; //Endereço para salto
 	reg [31:0] imed_op_ext; //Valor imediato (10 bits)
 	reg [31:0] imed_load_ext; //Valor imediato (21 bits)
@@ -48,12 +48,8 @@ module Datapath (
 		.reset(reset),
 		.flagPC(flagPC),
 		.newAddress(newAddress),
+		.delay(imed_op),
 		.address(addressMI)
-	);
-	
-	MemoryInstructions MemoryInstructions1 (
-		.address(addressMI),
-		.instruction(instruction)
 	);
 	
 	ArithmeticLogicUnit ArithmeticLogicUni1 (
@@ -63,14 +59,6 @@ module Datapath (
 		.RSvalue (RSvalue),
 		.RTvalue(RTvalue),
 		.immediate(imed_op_ext)
-	);
-	
-	DataMemory DataMemory1 (
-		.clock(clock),
-		.flagDM(flagDM),
-		.address(addressDM),
-		.data(RDvalue),
-		.read(dataReadDM)
 	);
 	
 	assign opcode = instruction [31:26];

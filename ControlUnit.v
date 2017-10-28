@@ -13,11 +13,12 @@ module ControlUnit (
 	output reg [1:0] flagBQ, //Branches
 	output reg [2:0] flagMuxRF,
 	output reg LED //LED indicando leitura de valor
+	
 );
-	integer delay = 0;
 	localparam [5:0] ALU = 6'd0, LW = 6'd1, LI = 6'd2, LR = 6'd3, SW = 6'd4, SR = 6'd5,
 							BEQ = 6'd6, BNQ = 6'd7, JMP = 6'd8, JR = 6'd9, NOP = 6'd10,
-							HLT = 6'd11, IN = 6'd12, OUT = 6'd13, DELAY = 6'd14;
+							HLT = 6'd11, IN = 6'd12, OUT = 6'd13, DLY_OUT = 6'd14,
+							DLY_NOT_OUT = 6'd15;
 	
 	always@ (*) begin
 		if(reset == 1) begin
@@ -191,12 +192,23 @@ module ControlUnit (
 					flagPC = 2'd1;
 					LED = 0;
 				end
-				DELAY: begin
+				DLY_OUT: begin
 					flagDM = 0;
 					flagJR = 0;
 					flagLSR = 0;
 					flagRF = 0;
 					flagOUT = 1;
+					flagPC = 2'd3;
+					flagBQ = 2'd0;
+					flagMuxRF = 3'd0;
+					LED = 0;
+				end
+				DLY_NOT_OUT: begin
+					flagDM = 0;
+					flagJR = 0;
+					flagLSR = 0;
+					flagRF = 0;
+					flagOUT = 0;
 					flagPC = 2'd3;
 					flagBQ = 2'd0;
 					flagMuxRF = 3'd0;

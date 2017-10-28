@@ -10,8 +10,14 @@ module Thiago (
 	output [6:0] OUT_N,
 	output LED
 );
-	wire clock;
+	wire clock, flagOUT, flagDM;
 	wire [5:0] opcode;
+	wire [19:0] addressMI, addressDM;
+	wire [31:0] instruction, RDvalue, dataReadDM, IN_Data, OUT;
+	
+	/*BIOS Bios1(
+		.clock(clock)
+	);*/
 	
 	Divisor Divisor1 (
 		.enter(enter),
@@ -20,18 +26,49 @@ module Thiago (
 		.NEW_CLOCK(clock)
 	);
 	
+	MemoryInstructions MemoryInstructions1 (
+		.address(addressMI),
+		.instruction(instruction)
+	);
+	
+	DataMemory DataMemory1 (
+		.clock(clock),
+		.flagDM(flagDM),
+		.address(addressDM),
+		.data(RDvalue),
+		.read(dataReadDM)
+	);
+	
 	Processor Processor1(
 		.reset(reset),
 		.clock(clock),
 		.interruption(interruption),
 		.enter(enter),
-		.switches(switches),
+		.dataReadDM(dataReadDM),
+		.instruction(instruction),
+		.IN_Data(IN_Data),
+		.RDvalue(RDvalue),
+		.OUT(OUT),
+		.addressDM(addressDM),
+		.addressMI(addressMI),
+		.opcode(opcode),
+		.LED(LED),
+		.flagDM(flagDM),
+		.flagOUT(flagOUT)
+	);
+	
+	IN IN1 (
+		.data(switches),
+		.dataIN(IN_Data)
+	);
+	
+	OUT OUT1 (
+		.flagOUT(flagOUT),
+		.Value(OUT),
 		.OUT_H(OUT_H),
 		.OUT_T(OUT_T),
 		.OUT_O(OUT_O),
-		.OUT_N(OUT_N),
-		.opcode(opcode),
-		.LED(LED)
+		.OUT_N(OUT_N)
 	);
 	
 endmodule
