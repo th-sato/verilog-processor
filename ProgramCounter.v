@@ -6,12 +6,12 @@ module ProgramCounter (
 	input [19:0] newAddress,
 	output reg [19:0] address
 );
-	//Como cada posição da matriz tem 32 bits, temos um total de 4Mb.
 	integer initialize = 1;
+	//Como cada posição da matriz tem 32 bits, temos um total de 4Mb.
 	reg [9:0] contador;
 	
 	always@ (posedge clock) begin
-		if (initialize == 1) begin
+		if(initialize == 1) begin
 			address = 20'd0;
 			contador = 10'd0;
 			initialize = 0;

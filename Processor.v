@@ -2,7 +2,6 @@ module Processor (
 	input reset,
 	input clock,
 	input interruption,
-	input enter,
 	input [31:0] dataReadDM,
 	input [31:0] instruction,
 	input [31:0] IN_Data,

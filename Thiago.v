@@ -27,6 +27,7 @@ module Thiago (
 	);
 	
 	MemoryInstructions MemoryInstructions1 (
+		.clock(clock),
 		.address(addressMI),
 		.instruction(instruction)
 	);
@@ -43,7 +44,6 @@ module Thiago (
 		.reset(reset),
 		.clock(clock),
 		.interruption(interruption),
-		.enter(enter),
 		.dataReadDM(dataReadDM),
 		.instruction(instruction),
 		.IN_Data(IN_Data),
