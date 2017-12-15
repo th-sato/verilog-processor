@@ -1,133 +1,163 @@
 module BIOS (
 	input clock,
-	input send,
-	output reg [159:0] instructions
+	input [11:0] address,
+	output [31:0] instruction
 );
-/*	parameter size = 109, instrCLK = 5;
-	integer i;
-	integer initialize = 1; //Responsável por inicializar
-	reg [31:0] instructionM [size-1:0];
 
-	always@ (posedge clock) begin
-		if(send == 1) begin
-			
-			instructions = {instructionM};
+	integer init = 1;
+	reg[31:0] ram[150:0];
+
+	assign instruction = ram[address];
+	
+	always@(posedge clock) begin
+		if(init == 1) begin
+//BIOS
+
+//BIOS
+
+ram[0] <= {6'd8, 6'd0, 20'd94};
+ram[1] <= {6'd12, 5'd29, 21'd0};
+ram[2] <= {6'd15, 10'd0, 10'd450, 6'd0};
+ram[3] <= {6'd0, 5'd1, 5'd29, 10'd0, 6'd1};
+ram[4] <= {6'd4, 5'd1, 1'b0, 20'd2};
+ram[5] <= {6'd1, 5'd11, 1'b0, 20'd2};
+ram[6] <= {6'd2, 5'd22, 21'd1};
+ram[7] <= {6'd0, 5'd1, 5'd11, 5'd22, 5'd0, 6'd15};
+ram[8] <= {6'd6, 5'd1, 5'd0, 16'd16};
+ram[9] <= {6'd2, 5'd21, 21'd123};
+ram[10] <= {6'd0, 5'd29, 5'd21, 10'd0, 6'd1};
+ram[11] <= {6'd13, 5'd29, 21'd0};
+ram[12] <= {6'd14, 5'd29, 5'd0, 10'd450, 6'd0};
+ram[13] <= {6'd15, 10'd0, 10'd450, 6'd0};
+ram[14] <= {6'd2, 5'd21, 21'd0};
+ram[15] <= {6'd4, 5'd21, 1'b0, 20'd0};
+ram[16] <= {6'd1, 5'd30, 1'b0, 20'd1};
+ram[17] <= {6'd9, 5'd30, 21'd0};
+ram[18] <= {6'd2, 5'd21, 21'd3};
+ram[19] <= {6'd0, 5'd29, 5'd21, 10'd0, 6'd1};
+ram[20] <= {6'd13, 5'd29, 21'd0};
+ram[21] <= {6'd14, 5'd29, 5'd0, 10'd450, 6'd0};
+ram[22] <= {6'd15, 10'd0, 10'd450, 6'd0};
+ram[23] <= {6'd2, 5'd21, 21'd26};
+ram[24] <= {6'd4, 5'd21, 1'b0, 20'd1};
+ram[25] <= {6'd8, 6'd0, 20'd1};
+ram[26] <= {6'd1, 5'd30, 1'b0, 20'd3};
+ram[27] <= {6'd9, 5'd30, 21'd0};
+ram[28] <= {6'd12, 5'd29, 21'd0};
+ram[29] <= {6'd15, 10'd0, 10'd450, 6'd0};
+ram[30] <= {6'd0, 5'd1, 5'd29, 10'd0, 6'd1};
+ram[31] <= {6'd4, 5'd1, 1'b0, 20'd5};
+ram[32] <= {6'd1, 5'd11, 1'b0, 20'd5};
+ram[33] <= {6'd0, 5'd29, 5'd11, 10'd0, 6'd1};
+ram[34] <= {6'd13, 5'd29, 21'd0};
+ram[35] <= {6'd14, 5'd29, 5'd0, 10'd450, 6'd0};
+ram[36] <= {6'd15, 10'd0, 10'd450, 6'd0};
+ram[37] <= {6'd2, 5'd21, 21'd40};
+ram[38] <= {6'd4, 5'd21, 1'b0, 20'd1};
+ram[39] <= {6'd8, 6'd0, 20'd1};
+ram[40] <= {6'd1, 5'd30, 1'b0, 20'd4};
+ram[41] <= {6'd9, 5'd30, 21'd0};
+ram[42] <= {6'd2, 5'd21, 21'd4};
+ram[43] <= {6'd4, 5'd21, 1'b0, 20'd7};
+ram[44] <= {6'd1, 5'd11, 1'b0, 20'd7};
+ram[45] <= {6'd0, 5'd29, 5'd11, 10'd0, 6'd1};
+ram[46] <= {6'd13, 5'd29, 21'd0};
+ram[47] <= {6'd14, 5'd29, 5'd0, 10'd450, 6'd0};
+ram[48] <= {6'd15, 10'd0, 10'd450, 6'd0};
+ram[49] <= {6'd2, 5'd21, 21'd52};
+ram[50] <= {6'd4, 5'd21, 1'b0, 20'd1};
+ram[51] <= {6'd8, 6'd0, 20'd1};
+ram[52] <= {6'd1, 5'd30, 1'b0, 20'd6};
+ram[53] <= {6'd9, 5'd30, 21'd0};
+ram[54] <= {6'd2, 5'd21, 21'd3};
+ram[55] <= {6'd2, 5'd22, 21'd5};
+ram[56] <= {6'd0, 5'd1, 5'd21, 5'd22, 5'd0, 6'd0};
+ram[57] <= {6'd0, 5'd29, 5'd1, 10'd0, 6'd1};
+ram[58] <= {6'd13, 5'd29, 21'd0};
+ram[59] <= {6'd14, 5'd29, 5'd0, 10'd450, 6'd0};
+ram[60] <= {6'd15, 10'd0, 10'd450, 6'd0};
+ram[61] <= {6'd2, 5'd21, 21'd64};
+ram[62] <= {6'd4, 5'd21, 1'b0, 20'd1};
+ram[63] <= {6'd8, 6'd0, 20'd1};
+ram[64] <= {6'd1, 5'd30, 1'b0, 20'd8};
+ram[65] <= {6'd9, 5'd30, 21'd0};
+ram[66] <= {6'd2, 5'd21, 21'd0};
+ram[67] <= {6'd4, 5'd21, 1'b0, 20'd11};
+ram[68] <= {6'd2, 5'd21, 21'd1024};
+ram[69] <= {6'd4, 5'd21, 1'b0, 20'd10};
+ram[70] <= {6'd1, 5'd11, 1'b0, 20'd10};
+ram[71] <= {6'd2, 5'd22, 21'd1915};
+ram[72] <= {6'd0, 5'd1, 5'd11, 5'd22, 5'd0, 6'd11};
+ram[73] <= {6'd6, 5'd1, 5'd0, 16'd92};
+ram[74] <= {6'd2, 5'd21, 21'd1024};
+ram[75] <= {6'd1, 5'd12, 1'b0, 20'd11};
+ram[76] <= {6'd0, 5'd1, 5'd21, 5'd12, 5'd0, 6'd0};
+ram[77] <= {6'd1, 5'd13, 1'b0, 20'd11};
+ram[78] <= {6'd0, 5'd14, 5'd13, 10'd0, 6'd1};
+ram[79] <= {6'd2, 5'd21, 21'd1024};
+ram[80] <= {6'd0, 5'd15, 5'd21, 10'd0, 6'd1};
+ram[81] <= {6'd0, 5'd16, 5'd1, 10'd0, 6'd1};
+ram[82] <= {6'd17, 5'd14, 5'd15, 5'd16, 11'd0};
+ram[83] <= {6'd1, 5'd17, 1'b0, 20'd11};
+ram[84] <= {6'd2, 5'd22, 21'd1};
+ram[85] <= {6'd0, 5'd1, 5'd17, 5'd22, 5'd0, 6'd0};
+ram[86] <= {6'd4, 5'd1, 1'b0, 20'd11};
+ram[87] <= {6'd1, 5'd18, 1'b0, 20'd10};
+ram[88] <= {6'd2, 5'd22, 21'd1};
+ram[89] <= {6'd0, 5'd1, 5'd18, 5'd22, 5'd0, 6'd0};
+ram[90] <= {6'd4, 5'd1, 1'b0, 20'd10};
+ram[91] <= {6'd8, 6'd0, 20'd70};
+ram[92] <= {6'd1, 5'd30, 1'b0, 20'd9};
+ram[93] <= {6'd9, 5'd30, 21'd0};
+ram[94] <= {6'd2, 5'd21, 21'd1};
+ram[95] <= {6'd4, 5'd21, 1'b0, 20'd0};
+ram[96] <= {6'd1, 5'd11, 1'b0, 20'd0};
+ram[97] <= {6'd2, 5'd22, 21'd1};
+ram[98] <= {6'd0, 5'd1, 5'd11, 5'd22, 5'd0, 6'd15};
+ram[99] <= {6'd6, 5'd1, 5'd0, 16'd104};
+ram[100] <= {6'd2, 5'd21, 21'd103};
+ram[101] <= {6'd4, 5'd21, 1'b0, 20'd3};
+ram[102] <= {6'd8, 6'd0, 20'd18};
+ram[103] <= {6'd8, 6'd0, 20'd96};
+ram[104] <= {6'd2, 5'd21, 21'd1};
+ram[105] <= {6'd4, 5'd21, 1'b0, 20'd0};
+ram[106] <= {6'd1, 5'd11, 1'b0, 20'd0};
+ram[107] <= {6'd2, 5'd22, 21'd1};
+ram[108] <= {6'd0, 5'd1, 5'd11, 5'd22, 5'd0, 6'd15};
+ram[109] <= {6'd6, 5'd1, 5'd0, 16'd114};
+ram[110] <= {6'd2, 5'd21, 21'd113};
+ram[111] <= {6'd4, 5'd21, 1'b0, 20'd4};
+ram[112] <= {6'd8, 6'd0, 20'd28};
+ram[113] <= {6'd8, 6'd0, 20'd106};
+ram[114] <= {6'd2, 5'd21, 21'd1};
+ram[115] <= {6'd4, 5'd21, 1'b0, 20'd0};
+ram[116] <= {6'd1, 5'd11, 1'b0, 20'd0};
+ram[117] <= {6'd2, 5'd22, 21'd1};
+ram[118] <= {6'd0, 5'd1, 5'd11, 5'd22, 5'd0, 6'd15};
+ram[119] <= {6'd6, 5'd1, 5'd0, 16'd124};
+ram[120] <= {6'd2, 5'd21, 21'd123};
+ram[121] <= {6'd4, 5'd21, 1'b0, 20'd6};
+ram[122] <= {6'd8, 6'd0, 20'd42};
+ram[123] <= {6'd8, 6'd0, 20'd116};
+ram[124] <= {6'd2, 5'd21, 21'd1};
+ram[125] <= {6'd4, 5'd21, 1'b0, 20'd0};
+ram[126] <= {6'd1, 5'd11, 1'b0, 20'd0};
+ram[127] <= {6'd2, 5'd22, 21'd1};
+ram[128] <= {6'd0, 5'd1, 5'd11, 5'd22, 5'd0, 6'd15};
+ram[129] <= {6'd6, 5'd1, 5'd0, 16'd134};
+ram[130] <= {6'd2, 5'd21, 21'd133};
+ram[131] <= {6'd4, 5'd21, 1'b0, 20'd8};
+ram[132] <= {6'd8, 6'd0, 20'd54};
+ram[133] <= {6'd8, 6'd0, 20'd126};
+ram[134] <= {6'd2, 5'd21, 21'd137};
+ram[135] <= {6'd4, 5'd21, 1'b0, 20'd9};
+ram[136] <= {6'd8, 6'd0, 20'd66};
+ram[137] <= {6'd16, 5'd29, 21'd0};
+
+
+
+			init = 0;
 		end
 	end
-	
-	always@ (posedge clock) begin //Codigo da BIOS
-		if (initialize == 1) begin
-			instructionM[0] <= {6'd8, 6'bxxxxxx, 20'd68};
-			instructionM[1] <= {6'd12, 5'd29, 21'd0};
-			instructionM[2] <= {6'd15, 10'd0, 10'd450, 6'd0};
-			instructionM[3] <= {6'd0, 5'd1, 5'd29, 10'd0, 6'd1};
-			instructionM[4] <= {6'd4, 5'd1, 1'bx, 20'd2};
-			instructionM[5] <= {6'd1, 5'd11, 1'bx, 20'd2};
-			instructionM[6] <= {6'd2, 5'd22, 21'd1};
-			instructionM[7] <= {6'd0, 5'd1, 5'd11, 5'd22, 5'bxxxxx, 6'd15};
-			instructionM[8] <= {6'd6, 5'd1, 5'd0, 16'd16};
-			instructionM[9] <= {6'd2, 5'd21, 21'd123};
-			instructionM[10] <= {6'd0, 5'd29, 5'd21, 10'd0, 6'd1};
-			instructionM[11] <= {6'd13, 5'd29, 21'd0};
-			instructionM[12] <= {6'd14, 5'd29, 5'd0, 10'd450, 6'd0};
-			instructionM[13] <= {6'd15, 10'd0, 10'd450, 6'd0};
-			instructionM[14] <= {6'd2, 5'd21, 21'd0};
-			instructionM[15] <= {6'd4, 5'd21, 1'bx, 20'd0};
-			instructionM[16] <= {6'd1, 5'd30, 1'bx, 20'd1};
-			instructionM[17] <= {6'd9, 5'd30, 21'd0};
-			instructionM[18] <= {6'd2, 5'd21, 21'd3};
-			instructionM[19] <= {6'd0, 5'd29, 5'd21, 10'd0, 6'd1};
-			instructionM[20] <= {6'd13, 5'd29, 21'd0};
-			instructionM[21] <= {6'd14, 5'd29, 5'd0, 10'd450, 6'd0};
-			instructionM[22] <= {6'd15, 10'd0, 10'd450, 6'd0};
-			instructionM[23] <= {6'd2, 5'd21, 21'd26};
-			instructionM[24] <= {6'd4, 5'd21, 1'bx, 20'd1};
-			instructionM[25] <= {6'd8, 6'bxxxxxx, 20'd1};
-			instructionM[26] <= {6'd1, 5'd30, 1'bx, 20'd5};
-			instructionM[27] <= {6'd9, 5'd30, 21'd0};
-			instructionM[28] <= {6'd12, 5'd29, 21'd0};
-			instructionM[29] <= {6'd15, 10'd0, 10'd450, 6'd0};
-			instructionM[30] <= {6'd0, 5'd1, 5'd29, 10'd0, 6'd1};
-			instructionM[31] <= {6'd4, 5'd1, 1'bx, 20'd7};
-			instructionM[32] <= {6'd1, 5'd11, 1'bx, 20'd7};
-			instructionM[33] <= {6'd0, 5'd29, 5'd11, 10'd0, 6'd1};
-			instructionM[34] <= {6'd13, 5'd29, 21'd0};
-			instructionM[35] <= {6'd14, 5'd29, 5'd0, 10'd450, 6'd0};
-			instructionM[36] <= {6'd15, 10'd0, 10'd450, 6'd0};
-			instructionM[37] <= {6'd2, 5'd21, 21'd40};
-			instructionM[38] <= {6'd4, 5'd21, 1'bx, 20'd1};
-			instructionM[39] <= {6'd8, 6'bxxxxxx, 20'd1};
-			instructionM[40] <= {6'd1, 5'd30, 1'bx, 20'd6};
-			instructionM[41] <= {6'd9, 5'd30, 21'd0};
-			instructionM[42] <= {6'd2, 5'd21, 21'd4};
-			instructionM[43] <= {6'd4, 5'd21, 1'bx, 20'd9};
-			instructionM[44] <= {6'd1, 5'd11, 1'bx, 20'd9};
-			instructionM[45] <= {6'd0, 5'd29, 5'd11, 10'd0, 6'd1};
-			instructionM[46] <= {6'd13, 5'd29, 21'd0};
-			instructionM[47] <= {6'd14, 5'd29, 5'd0, 10'd450, 6'd0};
-			instructionM[48] <= {6'd15, 10'd0, 10'd450, 6'd0};
-			instructionM[49] <= {6'd2, 5'd21, 21'd52};
-			instructionM[50] <= {6'd4, 5'd21, 1'bx, 20'd1};
-			instructionM[51] <= {6'd8, 6'bxxxxxx, 20'd1};
-			instructionM[52] <= {6'd1, 5'd30, 1'bx, 20'd8};
-			instructionM[53] <= {6'd9, 5'd30, 21'd0};
-			instructionM[54] <= {6'd2, 5'd21, 21'd3};
-			instructionM[55] <= {6'd2, 5'd22, 21'd5};
-			instructionM[56] <= {6'd0, 5'd1, 5'd21, 5'd22, 5'bxxxxx, 6'd0};
-			instructionM[57] <= {6'd0, 5'd29, 5'd1, 10'd0, 6'd1};
-			instructionM[58] <= {6'd13, 5'd29, 21'd0};
-			instructionM[59] <= {6'd14, 5'd29, 5'd0, 10'd450, 6'd0};
-			instructionM[60] <= {6'd15, 10'd0, 10'd450, 6'd0};
-			instructionM[61] <= {6'd2, 5'd21, 21'd64};
-			instructionM[62] <= {6'd4, 5'd21, 1'bx, 20'd1};
-			instructionM[63] <= {6'd8, 6'bxxxxxx, 20'd1};
-			instructionM[64] <= {6'd1, 5'd30, 1'bx, 20'd10};
-			instructionM[65] <= {6'd9, 5'd30, 21'd0};
-			instructionM[66] <= {6'd1, 5'd30, 1'bx, 20'd11};
-			instructionM[67] <= {6'd9, 5'd30, 21'd0};
-			instructionM[68] <= {6'd2, 5'd21, 21'd1};
-			instructionM[69] <= {6'd4, 5'd21, 1'bx, 20'd0};
-			instructionM[70] <= {6'd1, 5'd11, 1'bx, 20'd0};
-			instructionM[71] <= {6'd2, 5'd22, 21'd1};
-			instructionM[72] <= {6'd0, 5'd1, 5'd11, 5'd22, 5'bxxxxx, 6'd15};
-			instructionM[73] <= {6'd6, 5'd1, 5'd0, 16'd78};
-			instructionM[74] <= {6'd2, 5'd21, 21'd77};
-			instructionM[75] <= {6'd4, 5'd21, 1'bx, 20'd5};
-			instructionM[76] <= {6'd8, 6'bxxxxxx, 20'd18};
-			instructionM[77] <= {6'd8, 6'bxxxxxx, 20'd70};
-			instructionM[78] <= {6'd2, 5'd21, 21'd1};
-			instructionM[79] <= {6'd4, 5'd21, 1'bx, 20'd0};
-			instructionM[80] <= {6'd1, 5'd11, 1'bx, 20'd0};
-			instructionM[81] <= {6'd2, 5'd22, 21'd1};
-			instructionM[82] <= {6'd0, 5'd1, 5'd11, 5'd22, 5'bxxxxx, 6'd15};
-			instructionM[83] <= {6'd6, 5'd1, 5'd0, 16'd88};
-			instructionM[84] <= {6'd2, 5'd21, 21'd87};
-			instructionM[85] <= {6'd4, 5'd21, 1'bx, 20'd6};
-			instructionM[86] <= {6'd8, 6'bxxxxxx, 20'd28};
-			instructionM[87] <= {6'd8, 6'bxxxxxx, 20'd80};
-			instructionM[88] <= {6'd2, 5'd21, 21'd1};
-			instructionM[89] <= {6'd4, 5'd21, 1'bx, 20'd0};
-			instructionM[90] <= {6'd1, 5'd11, 1'bx, 20'd0};
-			instructionM[91] <= {6'd2, 5'd22, 21'd1};
-			instructionM[92] <= {6'd0, 5'd1, 5'd11, 5'd22, 5'bxxxxx, 6'd15};
-			instructionM[93] <= {6'd6, 5'd1, 5'd0, 16'd98};
-			instructionM[94] <= {6'd2, 5'd21, 21'd97};
-			instructionM[95] <= {6'd4, 5'd21, 1'bx, 20'd8};
-			instructionM[96] <= {6'd8, 6'bxxxxxx, 20'd42};
-			instructionM[97] <= {6'd8, 6'bxxxxxx, 20'd90};
-			instructionM[98] <= {6'd2, 5'd21, 21'd1};
-			instructionM[99] <= {6'd4, 5'd21, 1'bx, 20'd0};
-			instructionM[100] <= {6'd1, 5'd11, 1'bx, 20'd0};
-			instructionM[101] <= {6'd2, 5'd22, 21'd1};
-			instructionM[102] <= {6'd0, 5'd1, 5'd11, 5'd22, 5'bxxxxx, 6'd15};
-			instructionM[103] <= {6'd6, 5'd1, 5'd0, 16'd108};
-			instructionM[104] <= {6'd2, 5'd21, 21'd107};
-			instructionM[105] <= {6'd4, 5'd21, 1'bx, 20'd10};
-			instructionM[106] <= {6'd8, 6'bxxxxxx, 20'd54};
-			instructionM[107] <= {6'd8, 6'bxxxxxx, 20'd100};
-			instructionM[108] <= {6'd11, 5'd29, 21'd0};
-			initialize <= 0;
-		end
-	end*/
-	
+
 endmodule

@@ -10,7 +10,7 @@ module Divisor(
 		if(opcode == 6'd12) NEW_CLOCK = enter;
 		else begin 
 			contador = contador + 25'd1;
-			NEW_CLOCK = contador[0]; //15
+			NEW_CLOCK = contador[15]; //15
 		end
 	end
 endmodule

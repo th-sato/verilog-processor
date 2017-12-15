@@ -14,7 +14,6 @@ module Display7 (
 			7: OUT = 7'b1111000;
 			8: OUT = 7'b0000000;
 			9: OUT = 7'b0010000;
-			11: OUT = 7'b0111111; //Sinal negativo
 			default: begin
 				OUT = 7'b1111111;
 			end
