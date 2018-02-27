@@ -1,85 +1,112 @@
 module Processor (
-	input reset,
-	input clock,
-	input interruption,
-	input [31:0] dataReadDM,
-	input [31:0] instruction,
-	input [31:0] IN_Data,
-	input [31:0] dataFromHD,
+	input reset, //Reset
+	input clock, //Clock
+	input interruption, //Para a execução do processador
+	input [31:0] dataReadMD, //Dado lido da memória de dados
+	input [31:0] instruction, //Instrução a ser executada
+	input [31:0] IN_Data, //Valor de entrada
+	input [31:0] dataHD, //Valor lido do HD
+	output flagMI, //Define a escrita na memória de instruções
+	output LED, //LED para indicar que está esperando pela entrada
+	output flagMD, //Define a escrita na memória de dados
+	output flagHALT, //Indica o fim da BIOS
+	output flagHD, //Escrever no HD
+	output flagNumProg, //Altera o número do programa em execução
+	output [1:0] flagShift, //Alterar o valor do shift
+	output [11:0] addressMD, //Endereço da memória de dados
+	output [11:0] addressMI, //Endereço da memória de instruções
+	output [15:0] outTest, //Saída para testes
+	output [31:0] RWvalue, //Valores lidos do banco de registradores
 	output [31:0] RDvalue,
 	output [31:0] RSvalue,
 	output [31:0] RTvalue,
-	output [31:0] RWValue,
-	output [31:0] OUT,
-	output [11:0] addressDM,
-	output [11:0] addressMI,
-	output [5:0] opcode,
-	output flagHD,
-	output flagDataToHD,
-	output flagMI,
-	output flagShift,
-	output LED,
-	output flagDM, //Escrita na memoria de dados
-	output flagOUT,
-	output executeMI,
-	output flagSO
+	output [31:0] outLCD //Valor a ser apresentado no LCD
 );
 
-	wire flagJR, flagLSR, flagRF, flagJB, flagAddrRF, flagMP;
+	wire flagJR, flagLSR, flagRF, flagJB, flagAddrRF, flagSO;
+	wire flagExecProc;
+	wire flagCS;
 	wire [1:0] flagBQ;
-	wire [2:0] flagPC, flagMuxRF, flagUpdateData;
-		
+	wire [1:0] flagSetValue;
+	wire [2:0] flagPC, flagMuxRF;
+	wire [5:0] opcode; //Opcode
+	
+
 	Datapath Datapath1 (
+/************ INPUT ************/
+//1 bit
 		.reset(reset),
 		.clock(clock),
 		.flagJR(flagJR),
 		.flagLSR(flagLSR),
 		.flagRF(flagRF),
 		.flagAddrRF(flagAddrRF),
-		.flagMP(flagMP),
-		.flagUpdateData(flagUpdateData),
-		.flagPC(flagPC),
+		.flagHALT(flagHALT),
+		.flagExecProc(flagExecProc),
+//2 bits
 		.flagBQ(flagBQ),
+		.flagSetValue(flagSetValue),
+//3 bits
+		.flagPC(flagPC),
 		.flagMuxRF(flagMuxRF),
-		.dataReadDM(dataReadDM),
+//32 bits
+		.dataReadMD(dataReadMD),
 		.instruction(instruction),
 		.IN(IN_Data),
-		.dataFromHD(dataFromHD),
-		.executeMI(executeMI),
-		.flagSO(flagSO),
+		.dataHD(dataHD),
+/************ OUTPUT ************/
+//1 bit
 		.flagJB(flagJB),
+		.flagCS(flagCS),
+//2 bits
+		.flagShift(flagShift),
+//6 bits
 		.opcode(opcode),
+//12 bits
 		.addressMI(addressMI),
-		.addressDM(addressDM),
+		.addressMD(addressMD),
+//16 bits
+		.outTest(outTest),
+//32 bits
+		.RWvalue(RWvalue),
 		.RDvalue(RDvalue),
 		.RSvalue(RSvalue),
 		.RTvalue(RTvalue),
-		.RWValue(RWValue),
-		.OUT(OUT)
+		.OUT_LCD(outLCD)
 	);
 	
+/**********************************************************************************************************************/
+/**********************************************************************************************************************/
+/**********************************************************************************************************************/	
+	
 	ControlUnit ControlUnit1 (
-		.clock(clock),
+/************ INPUT ************/
+//1 bit
 		.reset(reset),
 		.interruption(interruption),
 		.flagJB(flagJB),
-		.opcode(opcode),
-		.flagDM(flagDM), 					//Outputs
+		.flagCS(flagCS),
+//6 bits
+		.opcode(opcode), //OPCODE
+/************ OUTPUT ************/
+//1 bit
+		.LED(LED),
+		.flagMI(flagMI),
+		.flagMD(flagMD),
 		.flagJR(flagJR),
 		.flagLSR(flagLSR),
 		.flagRF(flagRF),
 		.flagAddrRF(flagAddrRF),
-		.flagOUT(flagOUT),
-		.flagPC(flagPC),
-		.flagBQ(flagBQ),
-		.flagMuxRF(flagMuxRF),
+		.flagHALT(flagHALT),
+		.flagExecProc(flagExecProc),
 		.flagHD(flagHD),
-		.flagDataToHD(flagDataToHD),
-		.flagShift(flagShift),
-		.flagMI(flagMI),
-		.flagMP(flagMP),
-		.flagUpdateData(flagUpdateData),
-		.LED(LED)
+		.flagNumProg(flagNumProg),
+//2 bits
+		.flagBQ(flagBQ),
+		.flagSetValue(flagSetValue),
+//3 bits
+		.flagPC(flagPC),
+		.flagMuxRF(flagMuxRF)
 	);
 	
 endmodule

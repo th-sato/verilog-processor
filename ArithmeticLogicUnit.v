@@ -48,8 +48,8 @@ module ArithmeticLogicUnit (
 				if (RSvalue != RTvalue) RDvalue = 32'd1;
 				else RDvalue = 32'd0;
 			end
-			MULT: RDvalue = RSvalue*RTvalue;
-			DIV: RDvalue = RSvalue/RTvalue;
+			//MULT: RDvalue = RSvalue*RTvalue;
+			//DIV: RDvalue = RSvalue/RTvalue;
 			default: RDvalue = 32'bxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxxx;
 		endcase
 	end	

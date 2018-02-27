@@ -1,21 +1,22 @@
 module MemoryInstructions (
-	input clock,
+	input reset,
 	input clock50,
+	input clock,
 	input flagMI,
-	input flagShift,
-	input flagSO,
+	input [1:0] flagShift,
 	input [11:0] shift,
 	input [11:0] address,
 	input [11:0] addressWrite,
 	input [31:0] receiveInstruction,
 	output [31:0] instruction
-);
-	integer init = 1;
-	
-	reg [11:0] addrShift;
+);	
+	wire [11:0] addrShift;
 	reg [11:0] shiftMI;
 
-	MemoryI MI(
+	assign addrShift = address + shiftMI;
+	//addressWrite deve ser alterado --> sobreescrever o SO
+	
+	Memory MI(
 		.data(receiveInstruction),
 		.read_addr(addrShift),
 		.write_addr(addressWrite),
@@ -25,19 +26,13 @@ module MemoryInstructions (
 		.q(instruction)
 	);
 	
-	always@(*) begin
-		if(flagSO != 0)
-			addrShift = address + shiftMI;
-		else // Sistema operacional
-			addrShift = address;
-	end
 	
 	always@(posedge clock) begin
-		if (init == 1) begin
+		if (reset == 1) 
 			shiftMI = 12'd0;
-			init = 0;
-		end
-		if(flagShift == 1)
+		if (flagShift == 2'd1) //BIOS, SO
+			shiftMI = 12'd0;
+		else if (flagShift == 2'd2) //Processos
 			shiftMI = shift;
 	end
 	
