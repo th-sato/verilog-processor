@@ -79,8 +79,9 @@ module Datapath (
 		.immediate(imed_op_ext)
 	);
 	
-	assign outTest = {4'd0,addressMI};
+	//assign outTest = {4'd0,addressMI};
 	//assign outTest = {4'd0, addrCS};
+	assign outTest = contQ[15:0];
 	//IF (flagAddrRF == 1) addrRW = RDvalue[4:0]; //Endereço para escrita no registrador está em um registrador
 	//ELSE addrRW = RD; //Endereço está na própria instrução
 	assign addrRW = (flagAddrRF == 1)? RDvalue[4:0] : RD;
@@ -130,14 +131,11 @@ module Datapath (
 	always@ (posedge clock) begin
 		if(reset == 1)
 			contQ = 32'd0;
-		else if(multProg == 1) begin //Multiprogramação ativada
-			if(contQ < quantum) begin//Verifica se é preciso trocar o contexto
-				if(flagHALT == 1) //FIM
-					contQ = 32'd0;
-				else if(flagPC != 3'd3) //Delay
-					contQ = contQ + 32'd1;	
-				else contQ = quantum - 32'd3;
-			end
+		else if((multProg == 1) && (flagCS == 0)) begin //Multiprogramação ativada
+			if((flagHALT == 1) || (flagPC == 3'd3)) //FIM, Delay
+				contQ = 32'd0;
+			else if(contQ < quantum) //Verifica se é preciso trocar o contexto
+				contQ = contQ + 32'd1;
 			else contQ = 32'd0;
 		end
 		else contQ = 32'd0;
@@ -200,7 +198,7 @@ module Datapath (
 		else addressMD = instruction [11:0]; //Imediato
 	end
 //----------------------------------------------------------------------------------------------//
-//---------------------------------- Da onde vem o dado? ---------------------------------------//
+//---------------------------------- De onde vem o dado? ---------------------------------------//
 //----------------------------------------------------------------------------------------------//		
 	always@ (*) begin
 		if(flagMuxRF == 3'd1) data = resultALU; //ALU
