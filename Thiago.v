@@ -18,7 +18,24 @@ module Thiago (
 	output LCD_RW, // LCD Read/Write Select, 0 = Write, 1 = Read
 	output LCD_EN, // LCD Enable
 	output LCD_RS, // LCD Command/Data Select, 0 = Command, 1 = Data
-	inout [7:0] LCD_DATA // LCD Data bus 8 bits
+	inout [7:0] LCD_DATA, // LCD Data bus 8 bits
+	//Redes
+	output LED_send,
+	output LED_sent,
+	//-> Enviar
+	output flagSendArduino,
+	input flagSentArduino,
+	//-> Receber
+	output flagReceiveArduino,
+	input flagReceivedArduino,
+	input [3:0] dataFromArduino,
+	output [1:0] destToArduino,
+	//output [1:0] sourceToArduino,
+	output [3:0] dataToArduino,
+	
+	//Teste
+	output test1, //LEDR 17
+	output test2  //LEDR 16
 );
 		
 	//Clock dividido e sinal de interrupção
@@ -30,16 +47,22 @@ module Thiago (
 	//Valor lido (Memória de dados, entrada)
 	wire [31:0] dataReadMD, IN_Data;
 	//Instrução
-	wire [31:0] instructionBIOS, instructionMI;
+	wire [31:0] instructionBIOS, instructionMI, instructionSOControl;
 	reg [31:0] instruction;
 	
 	//Flags
 	wire flagMI, flagMD, flagHALT, flagHD, flagHD_MD, flagNumProg;
+	wire flagReceive, flagSOControl;
 	wire [1:0] flagShift;
 	//Valores de saída
 	wire [31:0] RWvalue, RDvalue, RSvalue, RTvalue, outLCD;
 	//Decidir de onde executar a instrução
-	reg executeMI;
+	reg executeMI, so_control;
+	//Rede
+	wire [31:0] netDest, netData;
+	//wire [31:0] netSource;
+	//Controle da execuçao dos dados
+	wire [1:0] addrSOControl;
 	
 	//HD
 	wire [3:0] sector;
@@ -55,6 +78,8 @@ module Thiago (
 	reg [31:0] dataToMD;
 	//Nome do programa em execução
 	wire [15:0] process;
+	//Dado do arduino
+	wire [31:0] dataArduino;
 	
 	assign sector = RSvalue[3:0];
 	assign track = RTvalue[9:0];
@@ -63,7 +88,17 @@ module Thiago (
 	assign IN_Data16 = IN_Data[15:0];
 	assign shiftMI = RSvalue[11:0];
 	assign shiftMD = RTvalue[11:0];
-	assign process = RDvalue[15:0];
+	assign process = RDvalue[15:0];	
+	//Redes
+	assign destToArduino = netDest[1:0];
+	//assign sourceToArduino = netSource[1:0];
+	assign dataToArduino = netData[3:0];
+	assign dataArduino = {28'd0, dataFromArduino};
+	assign LED_send = flagSendArduino;
+	assign LED_sent = flagSentArduino;
+	//Teste
+	assign test1 = flagReceiveArduino;
+	assign test2 = flagReceivedArduino;
 	
 	DeBounce db1(
 		.clk(clock50),
@@ -77,6 +112,10 @@ module Thiago (
 		.enter(enterDB),
 		.reset(reset),
 		.flagIN(LED),
+		.flagSend(flagSendArduino),
+		.flagReceive(flagReceiveArduino),
+		.send_confirmS(flagSentArduino),
+		.send_confirmR(flagReceivedArduino),
 		.CLOCK(clock50),
 		.NEW_CLOCK(clock)
 	);
@@ -149,7 +188,23 @@ module Thiago (
 		.RDvalue(RDvalue),
 		.RSvalue(RSvalue),
 		.RTvalue(RTvalue),
-		.outLCD(outLCD)
+		.outLCD(outLCD),
+		//Redes
+		.flagSOControl(flagSOControl),
+		.flagSend(flagSendArduino),
+		.flagReceive(flagReceiveArduino),
+		.netDataArduino(dataArduino),
+		.addrSOControl(addrSOControl),
+		.netDest(netDest),
+		//.netSource(netSource),
+		.netData(netData)
+	);
+	
+	//Controlar execucao de instrucoes pelo SO
+	SO_control soc1(
+		.clock(clock),
+		.address(addrSOControl),
+		.instruction(instructionSOControl)
 	);
 	
 	//Ler valor de entrada
@@ -186,6 +241,7 @@ module Thiago (
 	//Apresentar valores de testes
 	OUT_TEST OUT3 (
 		.Value(outTest), //Valor para aparecer do display de 7 segmentos
+		//.Value({14'd0, flagSend}),
 		.OUT_Th(OUT_PROC_Th),
 		.OUT_H(OUT_PROC_H),
 		.OUT_T(OUT_PROC_T),
@@ -196,14 +252,20 @@ module Thiago (
 		if(reset == 1) begin
 			interruption = 0;
 			executeMI = 0;
+			so_control = 0;
 		end
+
 		if(flagHALT == 1)
 			executeMI = 1;
+	
+		if(flagSOControl == 1) so_control = 1;
+		else so_control = 0;
 	end
 	
 	//Determinada da onde a instrução vem
 	always@(*) begin
-		if(executeMI == 0) instruction = instructionBIOS;
+		if(so_control == 1) instruction = instructionSOControl;
+		else if(executeMI == 0) instruction = instructionBIOS;
 		else instruction = instructionMI;
 	end
 	

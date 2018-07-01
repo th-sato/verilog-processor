@@ -12,7 +12,10 @@ module RegisterFile (
 	output [31:0] readRD,  //Leitura RD
 	output [31:0] readRS,  //Leitura RS
 	output [31:0] readRT,  //Leitura RT
-	output [31:0] regOUT   //Valor de saída
+	output [31:0] regOUT,  //Valor de saída
+	output [31:0] regDest, //Destino
+	//output [31:0] regSource, //Fonte
+	output [31:0] regData  //Dado
 );
 
 	integer initialize = 1; 
@@ -24,6 +27,10 @@ module RegisterFile (
 	assign readRS = registers[addrRS];
 	assign readRT = registers[addrRT];
 	assign regOUT = registers[6];
+	//Redes
+	assign regDest = registers[1];
+	//assign regSource = registers[2];
+	assign regData = registers[2];
 	
 	always@ (posedge clock) begin
 		if(initialize == 1) begin

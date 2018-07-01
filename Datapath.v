@@ -26,7 +26,12 @@ module Datapath (
 	output [31:0] RDvalue,
 	output [31:0] RSvalue,
 	output [31:0] RTvalue,
-	output [31:0] OUT_LCD //Valor de saida --> LCD
+	output [31:0] OUT_LCD, //Valor de saida --> LCD
+	//Redes
+	input [31:0] netDataArduino,
+	output [31:0] netDest,
+	//output [31:0] netSource,
+	output [31:0] netData
 );
 
 	wire [4:0] RD, RS, RT, addrRW; //Endereços
@@ -58,7 +63,10 @@ module Datapath (
 		.readRD(RDvalue),
 		.readRS(RSvalue),
 		.readRT(RTvalue),
-		.regOUT(OUT_LCD)
+		.regOUT(OUT_LCD),
+		.regDest(netDest),
+		//.regSource(netSource),
+		.regData(netData)
 	);
 	
 	
@@ -79,9 +87,11 @@ module Datapath (
 		.immediate(imed_op_ext)
 	);
 	
+	
 	//assign outTest = {4'd0,addressMI};
 	//assign outTest = {4'd0, addrCS};
-	assign outTest = contQ[15:0];
+	//assign outTest = contQ[15:0];
+	assign outTest = {10'd0, opcode};
 	//IF (flagAddrRF == 1) addrRW = RDvalue[4:0]; //Endereço para escrita no registrador está em um registrador
 	//ELSE addrRW = RD; //Endereço está na própria instrução
 	assign addrRW = (flagAddrRF == 1)? RDvalue[4:0] : RD;
@@ -207,6 +217,7 @@ module Datapath (
 		else if(flagMuxRF == 3'd4) data = imed_load_ext; //Valor imediato
 		else if(flagMuxRF == 3'd5) data = {20'd0, processPC}; //PC do último processo executado
 		else if(flagMuxRF == 3'd6) data = dataHD;
+		else if(flagMuxRF == 3'd7) data = netDataArduino;
 		else data = 32'd0;
 	end
 	

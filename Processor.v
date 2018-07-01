@@ -12,6 +12,7 @@ module Processor (
 	output flagHALT, //Indica o fim da BIOS
 	output flagHD, //Escrever no HD
 	output flagNumProg, //Altera o número do programa em execução
+	output flagSend,
 	output [1:0] flagShift, //Alterar o valor do shift
 	output [11:0] addressMD, //Endereço da memória de dados
 	output [11:0] addressMI, //Endereço da memória de instruções
@@ -20,7 +21,15 @@ module Processor (
 	output [31:0] RDvalue,
 	output [31:0] RSvalue,
 	output [31:0] RTvalue,
-	output [31:0] outLCD //Valor a ser apresentado no LCD
+	output [31:0] outLCD, //Valor a ser apresentado no LCD
+	//Redes
+	input [31:0] netDataArduino,
+	output flagSOControl,
+	output flagReceive,
+	output reg [1:0] addrSOControl,
+	output [31:0] netDest,
+	//output [31:0] netSource,
+	output [31:0] netData
 );
 
 	wire flagJR, flagLSR, flagRF, flagJB, flagAddrRF, flagSO;
@@ -72,7 +81,12 @@ module Processor (
 		.RDvalue(RDvalue),
 		.RSvalue(RSvalue),
 		.RTvalue(RTvalue),
-		.OUT_LCD(outLCD)
+		.OUT_LCD(outLCD),
+//REDES
+		.netDataArduino(netDataArduino),
+		.netDest(netDest),
+		//.netSource(netSource),
+		.netData(netData)
 	);
 	
 /**********************************************************************************************************************/
@@ -106,7 +120,18 @@ module Processor (
 		.flagSetValue(flagSetValue),
 //3 bits
 		.flagPC(flagPC),
-		.flagMuxRF(flagMuxRF)
+		.flagMuxRF(flagMuxRF),
+//REDES
+		.flagSend(flagSend),
+		.flagSOControl(flagSOControl),
+		.flagReceive(flagReceive)
 	);
+	
+	always@(posedge clock) begin
+		if(opcode == 6'd26) 
+			addrSOControl = 2'd0; //SEND_SO
+		else if(opcode == 6'd27) 
+			addrSOControl = 2'd1; //RECEIVE_SO
+	end
 	
 endmodule

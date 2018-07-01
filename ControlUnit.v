@@ -18,7 +18,11 @@ module ControlUnit (
 	output reg [1:0] flagBQ, //Branches
 	output reg [1:0] flagSetValue, //Decide qual variável terá seu valor alterado
 	output reg [2:0] flagPC, //Incremento no endereço da memoria de instruçoes
-	output reg [2:0] flagMuxRF //Decide qual dado será escrito na banco de registradores
+	output reg [2:0] flagMuxRF, //Decide qual dado será escrito na banco de registradores
+	//REDES
+	output reg flagSend, //Enviar dado para o Arduino
+	output reg flagSOControl, //SO controla as execuçoes de rede
+	output reg flagReceive
 );
 	localparam [5:0] ALU = 6'd0, LW = 6'd1, LI = 6'd2, LR = 6'd3, SW = 6'd4, SR = 6'd5,
 							BEQ = 6'd6, BNQ = 6'd7, JMP = 6'd8, JR = 6'd9, NOP = 6'd10,
@@ -27,11 +31,52 @@ module ControlUnit (
 							HD_TRANSFER_MI = 6'd15, SAVE_RF_HD = 6'd16, REC_RF_HD = 6'd17,
 							SAVE_RF_HD_IND = 6'd18, REC_RF_HD_IND = 6'd19, SET_MULTIPROG = 6'd20,
 							SET_QUANTUM = 6'd21, SET_ADDR_CS = 6'd22, SET_NUM_PROG = 6'd23,
-							EXEC_PROCESS = 6'd24, GET_PC_PROCESS = 6'd25;
-
+							EXEC_PROCESS = 6'd24, GET_PC_PROCESS = 6'd25,
+							//Receive and Send
+							SEND = 6'd26, RECEIVE = 6'd27, SEND_SO = 6'd28, RECEIVE_SO = 6'd29;
 							//HD_LOAD_MI = 6'd15, HD_LOAD_MD = 6'd16, HD_STORE = 6'd17,
 							//SET_MULTIPROG = 6'd18, SET_QUANTUM = 6'd19, SET_ADDR_CS = 6'd20,
 							//SET_NUM_PROG = 6'd21, EXEC_PROCESS = 6'd22, GET_PC_PROCESS = 6'd23;
+							
+
+//----------------------------------------------------------------------------------------------//
+//------------------------ Controlar as instrucoes de send e receive ---------------------------//
+// SEND ----------------------------------------------------------------------------------------//
+// RECEIVE -------------------------------------------------------------------------------------//
+//----------------------------------------------------------------------------------------------//
+	always@(*) begin
+		if((reset == 1) || (interruption == 1) || (flagCS == 1))
+			flagSOControl = 0;
+		else if((opcode == SEND) || (opcode == RECEIVE))
+			flagSOControl = 1;
+		else
+			flagSOControl = 0;
+	end
+							
+
+//----------------------------------------------------------------------------------------------//
+//------------------------ Transferir dados Arduino para Processador ---------------------------//
+// SEND_SO -------------------------------------------------------------------------------------//
+// RECEIVE_SO ----------------------------------------------------------------------------------//
+//----------------------------------------------------------------------------------------------//
+	always@(*) begin
+		if((reset == 1) || (interruption == 1) || (flagCS == 1))
+			flagSend = 0;
+		else if(opcode == SEND_SO)
+			flagSend = 1;
+		else
+			flagSend = 0;
+	end
+	
+	always@(*) begin
+		if((reset == 1) || (interruption == 1) || (flagCS == 1))
+			flagReceive = 0;
+		else if(opcode == RECEIVE_SO)
+			flagReceive = 1;
+		else
+			flagReceive = 0;
+	end
+							
 //----------------------------------------------------------------------------------------------//
 //------------------------ Transferir dados para a Memória de Instruções -----------------------//
 // HD_TRANSFER_MI ------------------------------------------------------------------------------//
@@ -44,6 +89,7 @@ module ControlUnit (
 		else
 			flagMI = 0;
 	end
+	
 //----------------------------------------------------------------------------------------------//
 //------------------------------------------ HD ------------------------------------------------//
 // SAVE_RF_HD ----------------------------------------------------------------------------------//
@@ -429,6 +475,50 @@ module ControlUnit (
 					flagPC = 3'd1;
 					flagBQ = 2'd0;
 					flagMuxRF = 3'd5;
+				end
+				SEND: begin
+					LED = 0;
+					flagMD = 0;
+					flagJR = 0;
+					flagLSR = 0;
+					flagRF = 0;
+					flagAddrRF = 0;
+					flagPC = 3'd0;
+					flagBQ = 2'd0;
+					flagMuxRF = 3'd0;
+				end
+				RECEIVE: begin
+					LED = 0;
+					flagMD = 0;
+					flagJR = 0;
+					flagLSR = 0;
+					flagRF = 0;
+					flagAddrRF = 0;
+					flagPC = 3'd0;
+					flagBQ = 2'd0;
+					flagMuxRF = 3'd0;
+				end
+				SEND_SO: begin
+					LED = 0;
+					flagMD = 0;
+					flagJR = 0;
+					flagLSR = 0;
+					flagRF = 0;
+					flagAddrRF = 0;
+					flagPC = 3'd1;
+					flagBQ = 2'd0;
+					flagMuxRF = 3'd0;
+				end
+				RECEIVE_SO: begin
+					LED = 0;
+					flagMD = 0;
+					flagJR = 0;
+					flagLSR = 0;
+					flagRF = 1;
+					flagAddrRF = 0;
+					flagPC = 3'd1;
+					flagBQ = 2'd0;
+					flagMuxRF = 3'd7;
 				end
 				default: begin
 					LED = 0;

@@ -1,0 +1,103 @@
+Restore Archived Project report for Thiago
+Sun Jul  1 20:51:36 2018
+Quartus Prime Version 17.0.1 Build 598 06/07/2017 SJ Lite Edition
+
+
+---------------------
+; Table of Contents ;
+---------------------
+  1. Legal Notice
+  2. Restore Archived Project Summary
+  3. Restore Archived Project Messages
+  4. Files Restored
+  5. Files Not Restored
+
+
+
+----------------
+; Legal Notice ;
+----------------
+Copyright (C) 2017  Intel Corporation. All rights reserved.
+Your use of Intel Corporation's design tools, logic functions 
+and other software and tools, and its AMPP partner logic 
+functions, and any output files from any of the foregoing 
+(including device programming or simulation files), and any 
+associated documentation or information are expressly subject 
+to the terms and conditions of the Intel Program License 
+Subscription Agreement, the Intel Quartus Prime License Agreement,
+the Intel MegaCore Function License Agreement, or other 
+applicable license agreement, including, without limitation, 
+that your use is for the sole purpose of programming logic 
+devices manufactured by Intel and sold by Intel or its 
+authorized distributors.  Please refer to the applicable 
+agreement for further details.
+
+
+
++-------------------------------------------------------------------------+
+; Restore Archived Project Summary                                        ;
++---------------------------------+---------------------------------------+
+; Restore Archived Project Status ; Successful - Sun Jul  1 20:51:36 2018 ;
+; Revision Name                   ; Thiago                                ;
+; Top-level Entity Name           ; Thiago                                ;
+; Family                          ; Cyclone IV E                          ;
++---------------------------------+---------------------------------------+
+
+
++-----------------------------------+
+; Restore Archived Project Messages ;
++-----------------------------------+
+Info: Successfully restored '/home/thiago/Documentos/EngComp/Thiago.qar' into the '/home/thiago/Documentos/EngComp/Thiago_restored/' directory
+Info: Generated report 'Thiago.restore.rpt'
+Info (23030): Evaluation of Tcl script /home/thiago/intelFPGA_lite/17.0/quartus/common/tcl/apps/qpm/qar.tcl was successful
+Info: Quartus Prime Shell was successful. 0 errors, 0 warnings
+    Info: Peak virtual memory: 1049 megabytes
+    Info: Processing ended: Sun Jul  1 20:51:36 2018
+    Info: Elapsed time: 00:00:01
+    Info: Total CPU time (on all processors): 00:00:01
+
+
++--------------------------------+
+; Files Restored                 ;
++--------------------------------+
+; File Name                      ;
++--------------------------------+
+; qar_info.json                  ;
+; ArithmeticLogicUnit.v          ;
+; BIOS.v                         ;
+; BinaryCodedDecimal.v           ;
+; ControlUnit.v                  ;
+; Datapath.v                     ;
+; DeBounce.v                     ;
+; Display7.v                     ;
+; Divisor.v                      ;
+; HardDisk.v                     ;
+; IN.v                           ;
+; LCD_Display.v                  ;
+; Memory.v                       ;
+; MemoryData.v                   ;
+; MemoryInstructions.v           ;
+; Memory_HD.v                    ;
+; OUT_IN.v                       ;
+; OUT_LCD.v                      ;
+; OUT_TEST.v                     ;
+; Processor.v                    ;
+; ProgramCounter.v               ;
+; RegisterFile.v                 ;
+; Reset_Delay.v                  ;
+; SO_control.v                   ;
+; Thiago.qpf                     ;
+; Thiago.qsf                     ;
+; Thiago.v                       ;
+; Thiago_assignment_defaults.qdf ;
+; assignment_defaults.qdf        ;
++--------------------------------+
+
+
++--------------------+
+; Files Not Restored ;
++--------------------+
+; File Name          ;
++--------------------+
+
+
